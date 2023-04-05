@@ -1,10 +1,10 @@
+import { MatSliderModule } from '@angular/material/slider';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { NgIf } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { BehaviorSubject, Observable } from 'rxjs';
-
 declare const $: any;
 
 @Component({
@@ -12,7 +12,13 @@ declare const $: any;
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
   standalone: true,
-  imports: [IonicModule, ExploreContainerComponent, NgIf, NgxSliderModule],
+  imports: [
+    IonicModule,
+    ExploreContainerComponent,
+    NgIf,
+    NgxSliderModule,
+    MatSliderModule,
+  ],
 })
 export class Tab1Page implements OnInit, AfterViewInit {
   @ViewChild('AudioInputContainer') audioInputContainer: any;
