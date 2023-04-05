@@ -1,0 +1,172 @@
+import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+
+import * as ecg from './main.ts';
+
+import { SciChartSurface } from 'scichart/Charting/Visuals/SciChartSurface';
+import { NumericAxis } from 'scichart/Charting/Visuals/Axis/NumericAxis';
+import { XyDataSeries } from 'scichart/Charting/Model/XyDataSeries';
+import { FastLineRenderableSeries } from 'scichart/Charting/Visuals/RenderableSeries/FastLineRenderableSeries';
+import {
+  EAutoRange,
+  EllipsePointMarker,
+  ENumericFormat,
+  NumberRange,
+  XyScatterRenderableSeries,
+} from 'scichart';
+import { vitalSignsEcgData } from './vitalSignsEcgData';
+
+const trial_key =
+  'IqJJNER4JQ4TEYgKYkLfb+oaijQhJE8XKy8VEKuj0n0f6c4lVHTbeWzA2HOFPNcDdriH6u4vt8s/N5kDkdItDFVFxpuY0ortNT44MjDhNYHQYWgXe+NsubdiKlbRHg1vyqca22lISwjDSTReCch1Mvq/PwvQyevyHt2WPD0p4blpVe9xusWzWIWhEo7OM1dGvZonVkoTPGccp2Bp8uxoQplEhBfqT8Wm+sqJvu8RSbMOZqiMv+w5Z78VuF0QIbDPyvHVfyDHLBrtBKmNenlfK17mfnQuhw+vGY0XRl1zpkOHBarEz6L4Sx9j43Ek6KBZcfbvyYaVeoe2mvPR4I1uO6Wc8q6oUBPaeHXzOxdTMKCh7enIrYhLTStlxEtpsCYpqZ86RjMBK86rw2psBC6JavGXFTHs9qhP5Ac+Ag2ebG6NxM2p1oY/pEEB00bBYcn5nniU6eMjqb9OsySWBi15ragPCJZ8mm4f3B/uy6ujgkSL/CuqrnZFN1eBm//ZPoCl70hUKFPc4oXdIiHS2Uk+HZvaAraaTJHEkc9v18XZdjnom9sZgFRqYNCH9fN7iUv3uF9WECNrVzh9P4Fcjk4=';
+
+SciChartSurface.setRuntimeLicenseKey(trial_key);
+SciChartSurface.useWasmFromCDN();
+
+let timerId: any;
+let leadingDotDataSeries: any;
+let currentPoint = 0;
+let scs: SciChartSurface;
+let autoStartTimerId: NodeJS.Timeout;
+let dataSeries: any;
+
+const TIMER_TIMEOUT_MS = 20;
+const STEP = 10;
+const DATA_LENGTH = vitalSignsEcgData.xValues.length;
+const POINTS_LOOP = 5200;
+const GAP_POINTS = 200;
+
+const { xValues, ecgHeartRateValues } = vitalSignsEcgData;
+
+@Component({
+  selector: 'app-tab1',
+  templateUrl: 'tab1.page.html',
+  styleUrls: ['tab1.page.scss'],
+  standalone: true,
+  imports: [IonicModule, ExploreContainerComponent],
+})
+export class Tab1Page implements OnInit {
+  constructor() {}
+
+  ngOnInit() {
+    this.prepareData();
+    (async () => {
+      let res = await this.initChart();
+
+      scs = res.sciChartSurface;
+      console.log(scs);
+      autoStartTimerId = setTimeout(res.controls.handleStart, 0);
+    })();
+  }
+
+  prepareData = () => {
+    const delta1 =
+      (ecgHeartRateValues[DATA_LENGTH - 1] - ecgHeartRateValues[0]) /
+      (DATA_LENGTH - 1);
+    xValues.forEach((_el, index) => {
+      ecgHeartRateValues[index] =
+        (ecgHeartRateValues[index] - delta1 * index - 0.7) / 0.3 + 3;
+    });
+  };
+
+  getValuesFromData = (xIndex: number) => {
+    const xArr: number[] = [];
+    const xPlusGapArr: number[] = [];
+    const ecgHeartRateArr: number[] = [];
+    for (let i = 0; i < STEP; i++) {
+      const dataIndex = (xIndex + i) % DATA_LENGTH;
+      const x = (xIndex + i) % POINTS_LOOP;
+      const xPlusGap = (xIndex + i + GAP_POINTS) % POINTS_LOOP;
+      xArr.push(x);
+      xPlusGapArr.push(xPlusGap);
+      ecgHeartRateArr.push(ecgHeartRateValues[dataIndex]);
+    }
+    return {
+      xArr,
+      xPlusGapArr,
+      ecgHeartRateArr,
+    };
+  };
+
+  async initChart() {
+    const { sciChartSurface, wasmContext } = await SciChartSurface.create(
+      'ecg-chart'
+    );
+
+    const xAxis = new NumericAxis(wasmContext, {
+      autoRange: EAutoRange.Once,
+      isVisible: false,
+    });
+    sciChartSurface.xAxes.add(xAxis);
+
+    const yAxis = new NumericAxis(wasmContext, {
+      autoRange: EAutoRange.Never,
+      visibleRange: new NumberRange(0, 4),
+      isVisible: false,
+    });
+    yAxis.labelProvider.numericFormat = ENumericFormat.Decimal;
+    sciChartSurface.yAxes.add(yAxis);
+
+    dataSeries = new XyDataSeries(wasmContext);
+
+    for (let i = 0; i < POINTS_LOOP; i++) {
+      dataSeries.append(i, NaN);
+    }
+
+    sciChartSurface.renderableSeries.add(
+      new FastLineRenderableSeries(wasmContext, {
+        strokeThickness: 1,
+        stroke: '#ff5f00',
+        dataSeries: dataSeries,
+        // effect
+      })
+    );
+
+    leadingDotDataSeries = new XyDataSeries(wasmContext);
+    sciChartSurface.renderableSeries.add(
+      new XyScatterRenderableSeries(wasmContext, {
+        pointMarker: new EllipsePointMarker(wasmContext, {
+          width: 3,
+          height: 3,
+          strokeThickness: 2,
+          fill: '#000000',
+          stroke: '#000000',
+        }),
+        dataSeries: leadingDotDataSeries,
+      })
+    );
+
+    const handleStop = () => {
+      clearTimeout(timerId);
+      timerId = undefined;
+    };
+
+    const handleStart = () => {
+      if (timerId) {
+        handleStop();
+      }
+      this.runUpdateDataOnTimeout();
+    };
+
+    return {
+      sciChartSurface,
+      wasmContext,
+      controls: { handleStart, handleStop },
+    };
+  }
+
+  runUpdateDataOnTimeout = () => {
+    const { xArr, xPlusGapArr, ecgHeartRateArr } =
+      this.getValuesFromData(currentPoint);
+    currentPoint += STEP;
+    if (leadingDotDataSeries.count() > 0) {
+      leadingDotDataSeries.removeRange(0, leadingDotDataSeries.count() - 1);
+    }
+    leadingDotDataSeries.append(xArr[STEP - 1], ecgHeartRateArr[STEP - 1]);
+    for (let i = 0; i < STEP; i++) {
+      dataSeries.update(xArr[i], ecgHeartRateArr[i]);
+      dataSeries.update(xPlusGapArr[i], NaN);
+    }
+    timerId = setTimeout(this.runUpdateDataOnTimeout, TIMER_TIMEOUT_MS);
+  };
+}

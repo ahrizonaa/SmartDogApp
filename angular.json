@@ -37,7 +37,10 @@
               }
             ],
             "styles": ["src/theme/variables.scss", "src/global.scss"],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/rainyday.js/dist/rainyday.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -136,7 +139,8 @@
     }
   },
   "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"]
+    "schematicCollections": ["@ionic/angular-toolkit"],
+    "analytics": "37ad80e2-9b61-4aef-97a2-7747170382b2"
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

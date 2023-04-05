@@ -1,0 +1,228 @@
+ion-col {
+  background: pink !important;
+  border: 1px solid black !important;
+}
+
+ion-grid {
+  height: 100%;
+}
+
+ion-card {
+  width: -webkit-fill-available;
+}
+.sensor-grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  // background-color: lightblue;
+  // border: 1px solid black;
+  overflow-y: auto;
+}
+
+.sensor-grid-row {
+  width: 90%;
+  height: fit-content;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  // background-color: lightgoldenrodyellow;
+  // border: 1px solid black;
+  margin: 5px;
+}
+
+.personal-information-panel {
+  width: inherit;
+}
+
+.heartrate-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.sensor-grid-col {
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+  width: 90%;
+  height: fit-content;
+  // min-height: 300px;
+  background-color: black;
+  border-radius: 3px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.sensor-grid-col-camera-pov {
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+  width: 95%;
+  // height: 200px;
+  aspect-ratio: 16 / 9;
+  background-color: black;
+  // border: 2px solid #101010;
+  border-radius: 3px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.pet-facial-expression {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+  // width: 100%;
+  // height: 100%;
+  box-sizing: border-box;
+}
+
+.pet-facial-expression-image {
+  opacity: 0.5;
+  width: 30vw;
+  aspect-ratio: 1 / 1;
+  // width: 70%;
+  // height: 100%;
+}
+
+.heart-pulse-animation {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  justify-content: flex-end;
+
+  & i {
+    line-height: normal;
+  }
+}
+
+.pet-name {
+  font-size: 18px;
+}
+.pet-age {
+  font-size: 10px;
+}
+.pet-weight {
+  font-size: 10px;
+}
+
+.spacer {
+  height: 10px;
+}
+
+.alarm-siren-container {
+  justify-content: center;
+  align-items: center;
+}
+
+.audio-input-container {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.alarm-siren-container,
+.audio-input-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+
+  & ion-icon#speakerphone-sensor {
+    font-size: 80px !important;
+  }
+
+  & ion-icon#microphone-sensor {
+    font-size: 48px !important;
+  }
+
+  & ion-button {
+    height: fit-content;
+    width: fit-content;
+  }
+}
+
+.audio-input-container ion-button::part(native) {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.volume-slider-container {
+  width: fit-content;
+  height: 70px;
+  position: relative;
+}
+
+.volume-label {
+  left: 0;
+  right: 0;
+  position: absolute;
+  bottom: -15px;
+  text-align: center;
+  font-size: 6px;
+}
+
+::ng-deep {
+  .volume-slider-container .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: #333;
+  }
+
+  .volume-slider-container .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .volume-slider-container .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+    font-size: 10px !important;
+  }
+
+  .volume-slider-container .ngx-slider .ngx-slider-limit {
+    font-weight: bold;
+  }
+
+  .volume-slider-container .ngx-slider .ngx-slider-tick {
+    width: 1px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    top: -1px;
+  }
+}
+
+.comm-animation-container {
+  margin-left: 40px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.chat-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  margin-right: 20px;
+}
+
+ion-icon#chat-activity-icon {
+  font-size: 18px !important;
+}
+
+ion-icon#chat-activity-arrow-icon {
+  font-size: 12px !important;
+}

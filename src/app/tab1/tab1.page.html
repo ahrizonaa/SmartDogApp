@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 1
+      Live
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,9 +9,117 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
+      <ion-title size="large">Live</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <div class="sensor-grid">
+    <div class="sensor-grid-row">
+      <ion-card class="personal-information-panel">
+        <ion-card-header>
+          <ion-card-title>Milo</ion-card-title>
+          <ion-card-subtitle>Personal Information</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <span class="pet-age">
+            <b>Age: </b> <span style="float:right">1 year, 3 weeks</span>
+          </span>
+          <div class="spacer"></div>
+          <span class="pet-weight">
+            <b>Weight: </b><span style="float:right">15.7 lbs</span>
+          </span>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <div class="sensor-grid-row">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Status: Normal</ion-card-title>
+          <ion-card-subtitle>Pulse, Heartrate, Stress, Anxiety</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="heartrate-panel">
+            <div class="pet-facial-expression">
+              <img src="../../assets/expression-normal.png" alt="normal" class="pet-facial-expression-image" />
+            </div>
+            <div class="heart-pulse-animation">
+              <i *ngIf="!heartsensor.IsAlertActive" class="fa-duotone fa-heart-pulse fa-beat-fade fa-xl"></i>
+
+              <i *ngIf="heartsensor.IsAlertActive"
+                class="fa-duotone fa-heart-circle-exclamation fa-beat-fade fa-xl"></i>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+    <div class="sensor-grid-row">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Anti-Threat Siren</ion-card-title>
+          <ion-card-subtitle>Active Protection</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="alarm-siren-container">
+            <ion-button (click)="AlarmSirenClicked($event)" fill="solid" color="danger">
+              <ion-icon id="speakerphone-sensor" slot="icon-only" [src]="speakerphone.ActiveSirenIcon"
+                [class.fa-shake]="speakerphone.IsActive"></ion-icon>
+            </ion-button>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <div class="sensor-grid-row">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Tap to Speak</ion-card-title>
+          <ion-card-subtitle>Communication</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div #AudioInputContainer class="audio-input-container">
+            <div class="mic-activate-container">
+              <ion-button (click)="MicrophoneClicked($event)" fill="solid" color="medium">
+                <ion-icon id="microphone-sensor" slot="icon-only" src="/assets/microphone.svg"
+                  [class.fa-fade]="microphone.IsActive"></ion-icon>
+              </ion-button>
+            </div>
+            <div class="volume-slider-container">
+              <ngx-slider #VolumeSlider [(value)]="microphone.Volume" [options]="sliderOptions"></ngx-slider>
+              <span class="volume-label">Volume</span>
+            </div>
+            <div class="comm-animation-container">
+              <div #ChatBubbleDiv [style.height]="microphone.chatBubbleDivHeight" class="chat-bubble">
+                <ion-icon id="chat-activity-icon" [src]="microphone.chatBubbleIconSrc"></ion-icon>
+                <ion-icon id="chat-activity-arrow-icon" *ngIf="microphone.IsActive" class="fa-fade"
+                  src="/assets/arrows-left-right.svg"></ion-icon>
+              </div>
+              <div class="dog-listening-image">
+                <img src="/assets/dog-listening.png" alt="dog-listening" />
+              </div>
+            </div>
+
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <div class="sensor-grid-row">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Milo's POV</ion-card-title>
+          <ion-card-subtitle>Live Stream, 3D Safety Vision</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <video width="100%" height="auto" controls>
+            <!-- <source src="movie.mp4" type="video/mp4">
+            <source src="movie.ogg" type="video/ogg"> -->
+            Your browser does not support the video tag.
+          </video>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
 </ion-content>
