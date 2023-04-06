@@ -62,11 +62,7 @@ export class Tab1Page implements OnInit, AfterViewInit {
 
   ngOnInit() {}
 
-  ngAfterViewInit(): void {
-    // setTimeout(() => {
-    //   $('.chat-bubble').height($('.comm-animation-container').height());
-    // }, 1000);
-  }
+  ngAfterViewInit(): void {}
 
   volumeChanged(event: any) {
     this.microphone.Volume = event.detail.value;
@@ -78,5 +74,11 @@ export class Tab1Page implements OnInit, AfterViewInit {
 
   MicrophoneClicked(event: Event) {
     this.microphone.ActivityStream.next(!this.microphone.IsActive);
+  }
+
+  videoEvt(event: any | Event) {
+    $('ion-card#camera-3d-safety ion-card-content').height(
+      event.target.offsetHeight
+    );
   }
 }

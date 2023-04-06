@@ -110,13 +110,13 @@
       </ion-card>
     </div>
     <div class="sensor-grid-row">
-      <ion-card>
+      <ion-card id="camera-3d-safety">
         <ion-card-header>
           <ion-card-title>Milo's POV</ion-card-title>
           <ion-card-subtitle>Live Stream, 3D Safety Vision</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
-          <video width="100%" height="auto" controls>
+          <video (loadeddata)="videoEvt($event)" width="100%" height="auto" controls playsinline>
             <source src="/assets/dog-pov.mp4" type="video/mp4">
             Your browser does not support the video tag.
           </video>
