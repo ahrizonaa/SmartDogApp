@@ -77,8 +77,12 @@ export class Tab1Page implements OnInit, AfterViewInit {
   }
 
   videoEvt(event: any | Event) {
+    // $('ion-card#camera-3d-safety ion-card-content').height(
+    //   event.target.offsetHeight
+    // );
+
     $('ion-card#camera-3d-safety ion-card-content').height(
-      event.target.offsetHeight
+      event.target.offsetHeight + $('div.safety-3d-vision').height()
     );
   }
 }
