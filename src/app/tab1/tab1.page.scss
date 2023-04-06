@@ -157,6 +157,13 @@ ion-card {
   padding-bottom: 10px;
 }
 
+.mic-activate-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
 .volume-slider-container {
   width: fit-content;
   height: 70px;
@@ -167,9 +174,9 @@ ion-card {
   left: 0;
   right: 0;
   position: absolute;
-  bottom: -15px;
+  bottom: -5px;
   text-align: center;
-  font-size: 6px;
+  font-size: 8px;
 }
 
 ::ng-deep {

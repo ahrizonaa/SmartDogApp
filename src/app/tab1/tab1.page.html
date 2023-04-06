@@ -86,13 +86,16 @@
                 <ion-icon id="microphone-sensor" slot="icon-only" src="/assets/microphone.svg"
                   [class.fa-fade]="microphone.IsActive"></ion-icon>
               </ion-button>
-            </div>
-            <div class="volume-slider-container">
-              <ngx-slider #VolumeSlider [(value)]="microphone.Volume" [options]="sliderOptions"></ngx-slider>
+              <mat-slider min="0" max="10" step="1" showTickMarks discrete>
+                <input [(value)]="microphone.Volume" matSliderThumb>
+              </mat-slider>
               <span class="volume-label">Volume</span>
             </div>
+            <!-- <div class="volume-slider-container">
+              <ngx-slider #VolumeSlider [(value)]="microphone.Volume" [options]="sliderOptions"></ngx-slider>
+            </div> -->
             <div class="comm-animation-container">
-              <div #ChatBubbleDiv [style.height]="microphone.chatBubbleDivHeight" class="chat-bubble">
+              <div class="chat-bubble">
                 <ion-icon id="chat-activity-icon" [src]="microphone.chatBubbleIconSrc"></ion-icon>
                 <ion-icon id="chat-activity-arrow-icon" *ngIf="microphone.IsActive" class="fa-fade"
                   src="/assets/arrows-left-right.svg"></ion-icon>
@@ -122,8 +125,8 @@
       </ion-card>
     </div>
     <div class="sensor-grid-row" style="height:300px">
-      <mat-slider vertical>
-        <input matSliderThumb>
+      <mat-slider min="0" max="10" step="1" showTickMarks discrete>
+        <input [(value)]="microphone.Volume" matSliderThumb>
       </mat-slider>
     </div>
   </div>
