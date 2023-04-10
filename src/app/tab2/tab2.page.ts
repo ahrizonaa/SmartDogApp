@@ -14,65 +14,64 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   imports: [IonicModule, ExploreContainerComponent],
 })
 export class Tab2Page implements AfterViewInit {
-  @ViewChild('rendererCanvas', { static: true }) rendererCanvas: any;
+  @ViewChild('rendererCanvas', { static: false }) rendererCanvas: any;
   private renderer: three.WebGLRenderer;
   private scene: three.Scene;
-  private camera: three.PerspectiveCamera;
-  private directionalLight: three.DirectionalLight;
+  private camera!: three.PerspectiveCamera;
+  private directionalLight!: three.DirectionalLight;
   private orbitcontrols!: OrbitControls;
-  private ambientLight: three.AmbientLight;
+  private ambientLight!: three.AmbientLight;
   private glbModel!: GLTF;
+  cw!: number;
+  ch!: number;
 
   constructor() {
-    this.renderer = new three.WebGLRenderer();
+    this.renderer = new three.WebGLRenderer({ antialias: true });
     this.scene = new three.Scene();
-    this.camera = new three.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight / 2,
-      0.1,
-      1000
-    );
-    this.directionalLight = new three.DirectionalLight(0xeeeffee, 10);
-
-    this.ambientLight = new three.AmbientLight(0x404040, 10);
-
-    this.orbitcontrols = new OrbitControls(
-      this.camera,
-      this.renderer.domElement
-    );
   }
 
   ngAfterViewInit(): void {
-    this.buildScene();
-    this.loadGLTFModel();
+    setTimeout(() => {
+      this.cw = this.rendererCanvas.nativeElement.offsetWidth;
+      this.ch = this.rendererCanvas.nativeElement.offsetHeight;
+      this.buildScene();
+      this.loadGLTFModel();
+    }, 500);
   }
 
   buildScene(): void {
     this.renderer.shadowMap.enabled = true;
-    this.renderer.setSize(window.innerWidth, window.innerHeight / 2);
+    this.renderer.setSize(this.cw, this.ch);
     this.rendererCanvas.nativeElement.appendChild(this.renderer.domElement);
 
+    this.setupLighting();
+    this.setupCamera();
+    this.setupOrbitControls();
+
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  setupLighting() {
+    this.directionalLight = new three.DirectionalLight(0xeeeffee, 10);
+    this.ambientLight = new three.AmbientLight(0x404040, 10);
     this.directionalLight.position.set(-3, 10, 0);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.camera.bottom = -12;
-    // const dlighthelper = new three.DirectionalLightHelper(
-    //   this.directionalLight,
-    //   10
-    // );
-    // this.scene.add(dlighthelper);
     this.scene.add(this.directionalLight);
-
     this.scene.add(this.ambientLight);
+  }
 
-    // const axes = new three.AxesHelper(20);
-    // this.scene.add(axes);
+  setupCamera() {
+    this.camera = new three.PerspectiveCamera(75, this.cw / this.ch, 0.1, 1000);
+    this.camera.position.set(-0.88, -0.07, -0.81);
+  }
 
-    this.camera.position.set(1.6, 1.3, 1.6);
+  setupOrbitControls() {
+    this.orbitcontrols = new OrbitControls(
+      this.camera,
+      this.renderer.domElement
+    );
     this.orbitcontrols.update();
-
-    this.orbitcontrols.enabled = false;
-
-    this.renderer.render(this.scene, this.camera);
   }
 
   animate(self: Tab2Page) {
