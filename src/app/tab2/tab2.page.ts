@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 
 import * as three from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 @Component({
@@ -19,7 +19,9 @@ export class Tab2Page implements AfterViewInit {
   private scene: three.Scene;
   private camera: three.PerspectiveCamera;
   private directionalLight: three.DirectionalLight;
-  private orbitcontrols: OrbitControls;
+  private orbitcontrols!: OrbitControls;
+  private ambientLight: three.AmbientLight;
+  private glbModel!: GLTF;
 
   constructor() {
     this.renderer = new three.WebGLRenderer();
@@ -30,7 +32,9 @@ export class Tab2Page implements AfterViewInit {
       0.1,
       1000
     );
-    this.directionalLight = new three.DirectionalLight(0xeeeffee, 0.8);
+    this.directionalLight = new three.DirectionalLight(0xeeeffee, 10);
+
+    this.ambientLight = new three.AmbientLight(0x404040, 10);
 
     this.orbitcontrols = new OrbitControls(
       this.camera,
@@ -45,60 +49,58 @@ export class Tab2Page implements AfterViewInit {
 
   buildScene(): void {
     this.renderer.shadowMap.enabled = true;
-    console.log(this.rendererCanvas.nativeElement.offsetWidth);
-    console.log(this.rendererCanvas.nativeElement.offsetHeight);
     this.renderer.setSize(window.innerWidth, window.innerHeight / 2);
     this.rendererCanvas.nativeElement.appendChild(this.renderer.domElement);
-
-    // const boxgeo = new three.BoxGeometry();
-    // const boxmat = new three.MeshStandardMaterial({
-    //   color: 0x00ff00,
-    // });
-    // const box = new three.Mesh(boxgeo, boxmat);
-    // this.scene.add(box);
-    // box.receiveShadow = true;
-    // box.castShadow = true;
 
     this.directionalLight.position.set(-3, 10, 0);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.camera.bottom = -12;
-    const dlighthelper = new three.DirectionalLightHelper(
-      this.directionalLight,
-      10
-    );
-    this.scene.add(dlighthelper);
+    // const dlighthelper = new three.DirectionalLightHelper(
+    //   this.directionalLight,
+    //   10
+    // );
+    // this.scene.add(dlighthelper);
     this.scene.add(this.directionalLight);
 
-    const axes = new three.AxesHelper(20);
-    this.scene.add(axes);
+    this.scene.add(this.ambientLight);
 
-    this.camera.position.set(0, 2, 0);
+    // const axes = new three.AxesHelper(20);
+    // this.scene.add(axes);
+
+    this.camera.position.set(1.6, 1.3, 1.6);
     this.orbitcontrols.update();
 
+    this.orbitcontrols.enabled = false;
+
     this.renderer.render(this.scene, this.camera);
-    this.renderer.setAnimationLoop(this.animate);
   }
 
-  animate() {
-    this.renderer.render(this.scene, this.camera);
+  animate(self: Tab2Page) {
+    return () => {
+      // self.glbModel.scene.rotation.x += 0.01;
+      self.glbModel.scene.rotation.y += 0.001;
+      self.renderer.render(self.scene, self.camera);
+      // console.log(self.camera.position);
+    };
   }
 
   loadGLTFModel() {
     const loader = new GLTFLoader();
     loader.load(
-      '/assets/harness.glb',
-      (gltf) => {
-        console.log(gltf);
-        gltf.scene.position.set(1, 1, 1);
+      '/assets/DogHarness.glb',
+      (gltf: GLTF) => {
+        this.glbModel = gltf;
+        // console.log(gltf);
+        gltf.scene.position.set(0, 0, 0);
         gltf.scene.traverse((c) => {
           c.castShadow = true;
         });
-        this.scene?.add(gltf.scene);
-
-        this.renderer?.render(this.scene, this.camera);
+        this.scene.add(gltf.scene);
+        this.renderer.render(this.scene, this.camera);
+        this.renderer.setAnimationLoop(this.animate(this));
       },
       (xhr) => {
-        console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+        // console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
       },
       (error) => {
         console.log('An error happened');
