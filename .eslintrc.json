@@ -5,7 +5,7 @@
     {
       "files": ["*.ts"],
       "parserOptions": {
-        "project": ["SmartDogCk1/tsconfig.json"],
+        "project": ["SmartDogApp/tsconfig.json"],
         "createDefaultProgram": true
       },
       "extends": [
