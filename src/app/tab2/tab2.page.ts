@@ -115,10 +115,8 @@ export class Tab2Page implements AfterViewInit {
 
   animate(self: Tab2Page) {
     return () => {
-      // self.glbModel.scene.rotation.x += 0.01;
       self.glbModel.scene.rotation.y += 0.001;
       self.renderer.render(self.scene, self.camera);
-      // console.log(self.camera.position);
     };
   }
 
@@ -129,7 +127,6 @@ export class Tab2Page implements AfterViewInit {
       (gltf: GLTF) => {
         this.sceneReady = true;
         this.glbModel = gltf;
-        // console.log(gltf);
         gltf.scene.position.set(0, 0, 0);
         gltf.scene.traverse((c) => {
           c.castShadow = true;
