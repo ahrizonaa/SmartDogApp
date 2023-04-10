@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 
@@ -11,7 +12,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
   standalone: true,
-  imports: [IonicModule, ExploreContainerComponent],
+  imports: [IonicModule, ExploreContainerComponent, CommonModule],
 })
 export class Tab2Page implements AfterViewInit {
   @ViewChild('rendererCanvas', { static: false }) rendererCanvas: any;
@@ -24,10 +25,48 @@ export class Tab2Page implements AfterViewInit {
   private glbModel!: GLTF;
   cw!: number;
   ch!: number;
+  sceneReady: boolean;
+  modelLoadProgress: number;
+  sensors: any[];
 
   constructor() {
     this.renderer = new three.WebGLRenderer({ antialias: true });
     this.scene = new three.Scene();
+    this.sceneReady = false;
+    this.modelLoadProgress = 0;
+    this.sensors = [
+      { name: 'Heartrate', status: 'OK', statusCode: 1, icon: 'heart-pulse' },
+      {
+        name: 'Temperature',
+        status: 'OK',
+        statusCode: 1,
+        icon: 'temperature-sun',
+      },
+      {
+        name: 'Microphone',
+        status: 'OK',
+        statusCode: 1,
+        icon: 'circle-microphone',
+      },
+      { name: 'Camera', status: 'OK', statusCode: 1, icon: 'camera-security' },
+      {
+        name: '3D Safety Vision',
+        status: 'OK',
+        statusCode: 1,
+        icon: 'chart-network',
+      },
+      { name: 'Alarm Speaker', status: 'OK', statusCode: 1, icon: 'siren-off' },
+      {
+        name: 'Battery',
+        status: 'OK',
+        statusCode: 1,
+        value: 87,
+        icon: 'battery-bolt',
+      },
+      { name: 'Wifi', status: 'OK', statusCode: 1, icon: 'wifi' },
+      { name: 'Bluetooth', status: 'OK', statusCode: 1, icon: 'bluetooth' },
+      { name: 'GPS', status: 'OK', statusCode: 1, icon: 'location-dot' },
+    ];
   }
 
   ngAfterViewInit(): void {
@@ -88,6 +127,7 @@ export class Tab2Page implements AfterViewInit {
     loader.load(
       '/assets/DogHarness.glb',
       (gltf: GLTF) => {
+        this.sceneReady = true;
         this.glbModel = gltf;
         // console.log(gltf);
         gltf.scene.position.set(0, 0, 0);
@@ -99,7 +139,7 @@ export class Tab2Page implements AfterViewInit {
         this.renderer.setAnimationLoop(this.animate(this));
       },
       (xhr) => {
-        // console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+        this.modelLoadProgress = (xhr.loaded / xhr.total) * 100;
       },
       (error) => {
         console.log('An error happened');
