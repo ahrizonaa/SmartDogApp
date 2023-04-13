@@ -19,6 +19,7 @@
       <ion-icon name="battery-charging"></ion-icon>
     </div>
     <div *ngIf="!sceneReady" class="model-loader">
+      <div class="model-loading-text">Loading...</div>
       <ion-progress-bar [value]="modelLoadProgress"></ion-progress-bar>
     </div>
   </div>

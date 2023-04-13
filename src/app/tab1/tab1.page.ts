@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { BehaviorSubject } from 'rxjs';
+import { IonContent } from '@ionic/angular';
 declare const $: any;
 
 @Component({
@@ -15,6 +16,8 @@ declare const $: any;
 })
 export class Tab1Page implements OnInit, AfterViewInit {
   @ViewChild('AudioInputContainer') audioInputContainer: any;
+  @ViewChild(IonContent)
+  ionContent!: IonContent;
 
   isMicrophoneActive: boolean;
   heartsensor: any;
