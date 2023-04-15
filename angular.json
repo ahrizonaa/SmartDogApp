@@ -41,10 +41,7 @@
               "src/theme/variables.scss",
               "src/global.scss"
             ],
-            "scripts": [
-              "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/rainyday.js/dist/rainyday.min.js"
-            ]
+            "scripts": ["node_modules/jquery/dist/jquery.min.js"]
           },
           "configurations": {
             "production": {
