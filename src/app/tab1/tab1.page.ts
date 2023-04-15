@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { IonContent } from '@ionic/angular';
 import { AudioService } from '../services/audio.service';
-import { skip } from 'rxjs/operators';
 
 declare const $: any;
 
@@ -103,11 +102,7 @@ export class Tab1Page implements OnInit, AfterViewInit {
     this.AudioService.microphoneToggle();
   }
 
-  videoEvt(event: any | Event) {
-    $('ion-card#camera-3d-safety ion-card-content').height(
-      event.target.offsetHeight + $('div.safety-3d-vision').height()
-    );
-  }
+  videoEvt(event: any | Event) {}
 
   toastDismissed(event: any) {
     this.toastErrorMessage = '';
