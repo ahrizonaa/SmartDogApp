@@ -9,7 +9,6 @@ import {
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { IonContent } from '@ionic/angular';
 import { AudioService } from '../services/audio.service';
 
 declare const $: any;
@@ -22,14 +21,10 @@ declare const $: any;
   imports: [IonicModule, CommonModule, NgxSliderModule, MatSliderModule],
 })
 export class Tab1Page implements OnInit, AfterViewInit {
-  @ViewChild('AudioInputContainer') audioInputContainer: any;
-  @ViewChild(IonContent)
-  ionContent!: IonContent;
   @ViewChild('AudioPlayer')
   audioPlayer!: ElementRef;
   @ViewChild('AudioPlaybackContainer')
   audioPlaybackContainer!: ElementRef;
-  @ViewChild('AudioPlaybackButton') audioPlaybackButton!: any;
   navigator: any = window.navigator;
 
   heartsensor: any;

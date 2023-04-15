@@ -6,7 +6,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content #IonContent [fullscreen]="true">
+<ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Live</ion-title>
@@ -80,7 +80,7 @@
           <ion-card-subtitle>Communication</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
-          <div #AudioInputContainer class="audio-input-container">
+          <div class="audio-input-container">
             <div class="mic-activate-container">
               <ion-button (click)="MicrophoneClicked($event)" fill="solid" color="medium">
                 <ion-icon id="microphone-sensor" slot="icon-only" src="/assets/microphone.svg"
@@ -104,7 +104,7 @@
           </div>
           <div [style.display]="'none'" #AudioPlaybackContainer class="audio-playback-container">
             <span>Preview</span>
-            <ion-button #AudioPlaybackButton
+            <ion-button
               (click)="AudioService.isAudioPlaying ? AudioService.stopAudioPlayback() : AudioService.playbackAudio()"
               fill="clear" size="small">
               <ion-icon *ngIf="!AudioService.isAudioPlaying" slow="icon-only" name="play"></ion-icon>
