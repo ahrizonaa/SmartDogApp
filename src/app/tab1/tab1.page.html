@@ -65,8 +65,8 @@
         <ion-card-content>
           <div class="alarm-siren-container">
             <ion-button (click)="AlarmSirenClicked($event)" fill="solid" color="danger">
-              <ion-icon id="speakerphone-sensor" slot="icon-only" [src]="speakerphone.ActiveSirenIcon"
-                [class.fa-shake]="speakerphone.IsActive"></ion-icon>
+              <ion-icon id="speakerphone-sensor" slot="icon-only" [src]="activeSirenIcon"
+                [class.fa-shake]="AudioService.Speakerphone.IsActive"></ion-icon>
             </ion-button>
           </div>
 
@@ -84,27 +84,32 @@
             <div class="mic-activate-container">
               <ion-button (click)="MicrophoneClicked($event)" fill="solid" color="medium">
                 <ion-icon id="microphone-sensor" slot="icon-only" src="/assets/microphone.svg"
-                  [class.fa-fade]="microphone.IsActive"></ion-icon>
+                  [class.fa-fade]="AudioService.Microphone.IsActive"></ion-icon>
               </ion-button>
               <mat-slider min="0" max="10" step="1" showTickMarks discrete>
-                <input [(value)]="microphone.Volume" matSliderThumb>
+                <input (input)="volumeChanged($event)" [(value)]="AudioService.Microphone.Volume" matSliderThumb>
               </mat-slider>
               <span class="volume-label">Volume</span>
             </div>
-            <!-- <div class="volume-slider-container">
-              <ngx-slider #VolumeSlider [(value)]="microphone.Volume" [options]="sliderOptions"></ngx-slider>
-            </div> -->
             <div class="comm-animation-container">
               <div class="chat-bubble">
-                <ion-icon id="chat-activity-icon" [src]="microphone.chatBubbleIconSrc"></ion-icon>
-                <ion-icon id="chat-activity-arrow-icon" *ngIf="microphone.IsActive" class="fa-fade"
+                <ion-icon id="chat-activity-icon" [src]="chatBubbleIconSrc"></ion-icon>
+                <ion-icon id="chat-activity-arrow-icon" *ngIf="AudioService.Microphone.IsActive" class="fa-fade"
                   src="/assets/arrows-left-right.svg"></ion-icon>
               </div>
               <div class="dog-listening-image">
                 <img src="/assets/dog-listening.png" alt="dog-listening" />
               </div>
             </div>
-
+          </div>
+          <div [style.display]="'none'" #AudioPlaybackContainer class="audio-playback-container">
+            <span>Preview</span>
+            <ion-button #AudioPlaybackButton
+              (click)="AudioService.isAudioPlaying ? AudioService.stopAudioPlayback() : AudioService.playbackAudio()"
+              fill="clear" size="small">
+              <ion-icon *ngIf="!AudioService.isAudioPlaying" slow="icon-only" name="play"></ion-icon>
+              <ion-icon *ngIf="AudioService.isAudioPlaying" slow="icon-only" name="pause"></ion-icon>
+            </ion-button>
           </div>
         </ion-card-content>
       </ion-card>
@@ -131,5 +136,8 @@
       <ion-toggle aria-label="Enable 3D Safety Vision"></ion-toggle>
     </div> -->
   </div>
-  <audio #AudioPlayer></audio>
+  <audio (ended)="AudioService.audioTrackEnded($event)" #AudioPlayer></audio>
+
+  <ion-toast [isOpen]="isToastOpen" [message]="toastErrorMessage" [duration]="3000"
+    (didDismiss)="toastDismissed($event)"></ion-toast>
 </ion-content>

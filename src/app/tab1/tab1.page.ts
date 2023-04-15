@@ -9,8 +9,9 @@ import {
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { BehaviorSubject } from 'rxjs';
 import { IonContent } from '@ionic/angular';
+import { AudioService } from '../services/audio.service';
+import { skip } from 'rxjs/operators';
 
 declare const $: any;
 
@@ -25,111 +26,91 @@ export class Tab1Page implements OnInit, AfterViewInit {
   @ViewChild('AudioInputContainer') audioInputContainer: any;
   @ViewChild(IonContent)
   ionContent!: IonContent;
-  @ViewChild('AudioPlayer', { read: ElementRef })
-  audioPlayer!: ElementRef<HTMLAudioElement>;
+  @ViewChild('AudioPlayer')
+  audioPlayer!: ElementRef;
+  @ViewChild('AudioPlaybackContainer')
+  audioPlaybackContainer!: ElementRef;
+  @ViewChild('AudioPlaybackButton') audioPlaybackButton!: any;
   navigator: any = window.navigator;
 
-  isMicrophoneActive: boolean;
   heartsensor: any;
-  speakerphone: any;
-  microphone: any;
   sliderOptions: Options;
+  toastErrorMessage: string;
+  isToastOpen: boolean;
+  activeSirenIcon: string;
+  chatBubbleIconSrc: string;
+  isAudioAvailable: boolean;
 
-  constructor() {
-    this.isMicrophoneActive = false;
+  constructor(public AudioService: AudioService) {
+    this.toastErrorMessage = '';
+    this.isToastOpen = false;
+    this.activeSirenIcon = '/assets/siren-off.svg';
+    this.chatBubbleIconSrc = '/assets/chat-single.svg';
+    this.isAudioAvailable = false;
     this.heartsensor = {
       IsAlertActive: false,
     };
-    this.speakerphone = {
-      IsActive: false,
-      ActivityStream: new BehaviorSubject<boolean>(false),
-      ActiveSirenIcon: '/assets/siren-off.svg',
-    };
-    this.microphone = {
-      IsActive: false,
-      ActivityStream: new BehaviorSubject<boolean>(false),
-      Volume: 5,
-      chatBubbleDivHeight: 'auto',
-      chatBubbleIconSrc: '/assets/chat-single.svg',
-    };
+
     this.sliderOptions = {
       floor: 0,
       ceil: 10,
       vertical: true,
     };
-
-    this.speakerphone.ActivityStream.subscribe((isActive: boolean) => {
-      this.speakerphone.IsActive = isActive;
-      this.speakerphone.ActiveSirenIcon = isActive
-        ? '/assets/siren-on.svg'
-        : '/assets/siren-off.svg';
-    });
-
-    this.microphone.ActivityStream.subscribe((isActive: boolean) => {
-      this.microphone.IsActive = isActive;
-      this.microphone.chatBubbleIconSrc = isActive
-        ? '/assets/chat-duo.svg'
-        : '/assets/chat-single.svg';
-    });
   }
 
   ngOnInit() {}
 
   ngAfterViewInit(): void {
-    this.microphone.ActivityStream.subscribe((isActive: boolean) => {
-      if (isActive) {
-        this.getUserAudio();
-      } else {
-        this.stopUserAudio();
+    this.AudioService.setAudioPlayer(this.audioPlayer.nativeElement);
+    this.AudioService.Speakerphone.Activity.subscribe((isActive: boolean) => {
+      this.activeSirenIcon = isActive
+        ? '/assets/siren-on.svg'
+        : '/assets/siren-off.svg';
+    });
+
+    this.AudioService.Microphone.Activity.subscribe((isActive: boolean) => {
+      this.chatBubbleIconSrc = isActive
+        ? '/assets/chat-duo.svg'
+        : '/assets/chat-single.svg';
+    });
+
+    this.AudioService.Microphone.Errors.subscribe((error: string) => {
+      if (error) {
+        this.toastErrorMessage = error;
+        this.isToastOpen = true;
       }
     });
+
+    this.AudioService.Microphone.AudioAvailable.subscribe(
+      (isAvailable: boolean) => {
+        this.isAudioAvailable = isAvailable;
+        if (this.isAudioAvailable) {
+          this.audioPlaybackContainer.nativeElement.style.display = 'flex';
+        }
+      }
+    );
   }
 
   volumeChanged(event: any) {
-    this.microphone.Volume = event.detail.value;
+    this.AudioService.volumeChanged(event.target.value / 10);
   }
 
   AlarmSirenClicked(event: Event) {
-    this.speakerphone.ActivityStream.next(!this.speakerphone.IsActive);
+    this.AudioService.alarmSirenClicked();
   }
 
   MicrophoneClicked(event: Event) {
-    this.microphone.ActivityStream.next(!this.microphone.IsActive);
-  }
-
-  successCallback(stream: any) {
-    this.audioPlayer.nativeElement.src = URL.createObjectURL(stream);
-  }
-
-  errorCallback(error: any) {
-    //on failure, log the error
-    console.log('navigator.getUserMedia error: ', error);
-  }
-
-  getUserAudio() {
-    this.navigator.getUserMedia =
-      this.navigator.getUserMedia ||
-      this.navigator.webkitGetUserMedia ||
-      this.navigator.mozGetUserMedia;
-
-    this.navigator.getUserMedia(
-      { audio: true, video: false },
-      this.successCallback,
-      this.errorCallback
-    );
-  }
-
-  stopUserAudio() {
-    this.audioPlayer.nativeElement.src = '';
+    this.AudioService.microphoneToggle();
   }
 
   videoEvt(event: any | Event) {
-    // $('ion-card#camera-3d-safety ion-card-content').height(
-    //   event.target.offsetHeight
-    // );
-
     $('ion-card#camera-3d-safety ion-card-content').height(
       event.target.offsetHeight + $('div.safety-3d-vision').height()
     );
+  }
+
+  toastDismissed(event: any) {
+    this.toastErrorMessage = '';
+    this.isToastOpen = false;
   }
 }
