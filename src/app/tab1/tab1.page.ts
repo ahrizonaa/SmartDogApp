@@ -71,7 +71,11 @@ export class Tab1Page implements OnInit, AfterViewInit {
         ? '/assets/chat-duo.svg'
         : '/assets/chat-single.svg';
     });
+  }
 
+  ngOnInit() {}
+
+  ngAfterViewInit(): void {
     this.microphone.ActivityStream.subscribe((isActive: boolean) => {
       if (isActive) {
         this.getUserAudio();
@@ -80,10 +84,6 @@ export class Tab1Page implements OnInit, AfterViewInit {
       }
     });
   }
-
-  ngOnInit() {}
-
-  ngAfterViewInit(): void {}
 
   volumeChanged(event: any) {
     this.microphone.Volume = event.detail.value;
