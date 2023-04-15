@@ -9,7 +9,7 @@ import {
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { AudioService } from '../services/audio.service';
+import { AudioController } from '../classes/AudioController';
 
 declare const $: any;
 
@@ -26,6 +26,7 @@ export class Tab1Page implements OnInit, AfterViewInit {
   @ViewChild('AudioPlaybackContainer')
   audioPlaybackContainer!: ElementRef;
   navigator: any = window.navigator;
+  AudioController: AudioController;
 
   heartsensor: any;
   sliderOptions: Options;
@@ -35,12 +36,13 @@ export class Tab1Page implements OnInit, AfterViewInit {
   chatBubbleIconSrc: string;
   isAudioAvailable: boolean;
 
-  constructor(public AudioService: AudioService) {
+  constructor() {
     this.toastErrorMessage = '';
     this.isToastOpen = false;
     this.activeSirenIcon = '/assets/siren-off.svg';
     this.chatBubbleIconSrc = '/assets/chat-single.svg';
     this.isAudioAvailable = false;
+    this.AudioController = new AudioController();
     this.heartsensor = {
       IsAlertActive: false,
     };
@@ -55,27 +57,29 @@ export class Tab1Page implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   ngAfterViewInit(): void {
-    this.AudioService.setAudioPlayer(this.audioPlayer.nativeElement);
-    this.AudioService.Speakerphone.Activity.subscribe((isActive: boolean) => {
-      this.activeSirenIcon = isActive
-        ? '/assets/siren-on.svg'
-        : '/assets/siren-off.svg';
-    });
+    this.AudioController.setAudioPlayer(this.audioPlayer.nativeElement);
+    this.AudioController.Speakerphone.Activity.subscribe(
+      (isActive: boolean) => {
+        this.activeSirenIcon = isActive
+          ? '/assets/siren-on.svg'
+          : '/assets/siren-off.svg';
+      }
+    );
 
-    this.AudioService.Microphone.Activity.subscribe((isActive: boolean) => {
+    this.AudioController.Microphone.Activity.subscribe((isActive: boolean) => {
       this.chatBubbleIconSrc = isActive
         ? '/assets/chat-duo.svg'
         : '/assets/chat-single.svg';
     });
 
-    this.AudioService.Microphone.Errors.subscribe((error: string) => {
+    this.AudioController.Microphone.Errors.subscribe((error: string) => {
       if (error) {
         this.toastErrorMessage = error;
         this.isToastOpen = true;
       }
     });
 
-    this.AudioService.Microphone.AudioAvailable.subscribe(
+    this.AudioController.Microphone.AudioAvailable.subscribe(
       (isAvailable: boolean) => {
         this.isAudioAvailable = isAvailable;
         if (this.isAudioAvailable) {
@@ -86,15 +90,15 @@ export class Tab1Page implements OnInit, AfterViewInit {
   }
 
   volumeChanged(event: any) {
-    this.AudioService.volumeChanged(event.target.value / 10);
+    this.AudioController.volumeChanged(event.target.value / 10);
   }
 
   AlarmSirenClicked(event: Event) {
-    this.AudioService.alarmSirenClicked();
+    this.AudioController.alarmSirenClicked();
   }
 
   MicrophoneClicked(event: Event) {
-    this.AudioService.microphoneToggle();
+    this.AudioController.microphoneToggle();
   }
 
   videoEvt(event: any | Event) {}

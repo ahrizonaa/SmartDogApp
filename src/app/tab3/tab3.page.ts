@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { LogService } from '../services/log.service';
 
 @Component({
   selector: 'app-tab3',
@@ -10,5 +11,5 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
   imports: [IonicModule, ExploreContainerComponent],
 })
 export class Tab3Page {
-  constructor() {}
+  constructor(private LogService: LogService) {}
 }

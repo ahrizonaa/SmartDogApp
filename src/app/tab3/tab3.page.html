@@ -40,4 +40,14 @@
       <ion-toggle slot="end" name="bluetoothEnabled"></ion-toggle>
     </ion-item>
   </ion-list>
+
+  <br>
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Logs</ion-label>
+    </ion-list-header>
+    <ion-item *ngFor="let log of LogService.logs">
+      <ion-text>log</ion-text>
+    </ion-item>
+  </ion-list>
 </ion-content>

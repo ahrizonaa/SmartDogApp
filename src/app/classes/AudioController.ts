@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { BehaviorSubject, skip } from 'rxjs';
+import { LogService } from '../services/log.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AudioService {
+export class AudioController {
   Speakerphone: any;
   Microphone: any;
   Recorder!: MediaRecorder;
@@ -15,8 +13,10 @@ export class AudioService {
   isAudioPlaying: boolean;
   isAudioAvailable: boolean;
   navigator: any = window.navigator;
+  log: LogService;
 
   constructor() {
+    this.log = inject(LogService);
     this.isMicrophoneActive = false;
     this.isAudioPlaying = false;
     this.isAudioAvailable = false;
@@ -55,6 +55,7 @@ export class AudioService {
       this.cameraAccessObtained(stream);
     } catch (err: any) {
       this.Microphone.Errors.next(err.toString());
+      this.log.logs.push(err.toString());
     }
   }
 
