@@ -72,9 +72,9 @@ export class Tab1Page implements OnInit, AfterViewInit {
         : '/assets/chat-single.svg';
     });
 
-    this.AudioController.Microphone.Errors.subscribe((error: string) => {
+    this.AudioController.Microphone.Errors.subscribe((error: Error) => {
       if (error) {
-        this.toastErrorMessage = error;
+        this.toastErrorMessage = error.toString();
         this.isToastOpen = true;
       }
     });
