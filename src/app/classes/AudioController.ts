@@ -1,22 +1,25 @@
 import { inject } from '@angular/core';
 import { BehaviorSubject, skip } from 'rxjs';
 import { LogService } from '../services/log.service';
-import { Microphone, AudioRecording } from '@mozartec/capacitor-microphone';
 import { Device, DeviceInfo } from '@capacitor/device';
+
+import { iOSAudio } from '../classes/iOSAudio';
+import { AndroidAudio } from '../classes/AndroidAudio';
+import { WebAudio } from '../classes/WebAudio';
 
 export class AudioController {
   Speakerphone: any;
   Microphone: any;
-  WebRecorder!: MediaRecorder;
   AudioPlayer!: HTMLAudioElement;
-  blobArray: Blob[] = [];
-  audioRecordingBlob!: Blob;
   isMicrophoneActive: boolean;
   isAudioPlaying: boolean;
   isAudioAvailable: boolean;
   navigator: any = window.navigator;
   Log: LogService;
   deviceInfo!: DeviceInfo;
+  iOSAudio: iOSAudio;
+  AndroidAudio: AndroidAudio;
+  WebAudio: WebAudio;
 
   RecordingiOS!: any;
   webPaths = [];
@@ -30,6 +33,9 @@ export class AudioController {
     this.initSpeakerphone();
     this.initMicrophone();
     this.getDeviceInfo();
+    this.iOSAudio = new iOSAudio();
+    this.AndroidAudio = new AndroidAudio();
+    this.WebAudio = new WebAudio();
   }
 
   initSpeakerphone() {
@@ -71,11 +77,21 @@ export class AudioController {
 
   async beginRecording() {
     if (this.deviceInfo.platform === 'ios') {
-      await this.begin_iOSRecording();
+      try {
+        await this.iOSAudio.beginRecording();
+      } catch (error) {
+        this.Microphone.Errors.next(error);
+        this.Log.addLog(error);
+      }
     } else if (this.deviceInfo.platform == 'android') {
       // not implemented
     } else if (this.deviceInfo.platform == 'web') {
-      this.getUserAudio();
+      try {
+        await this.WebAudio.startRecording();
+      } catch (error) {
+        this.Microphone.Errors.next(error);
+        this.Log.addLog(error);
+      }
     } else {
       let err = new Error(
         'Cannot activate microphone.  Unsupported platform: ' +
@@ -88,52 +104,29 @@ export class AudioController {
 
   async endRecording() {
     if (this.deviceInfo.platform == 'ios') {
-      await this.end_iOSRecording();
+      try {
+        const iOSAudioData = await this.iOSAudio.stopRecording();
+        this.AudioPlayer.src = iOSAudioData.dataUrl || '';
+        this.setAudioAvailable(true);
+      } catch (error) {
+        this.Microphone.Errors.next(error);
+        this.Log.addLog(error);
+        this.setAudioAvailable(false);
+      }
     } else if (this.deviceInfo.platform == 'android') {
       // not implemented
     } else if (this.deviceInfo.platform == 'web') {
-      if (this.WebRecorder) {
-        this.stopUserAudio();
+      try {
+        const audiosrc = await this.WebAudio.stopRecording();
+        this.AudioPlayer.src = audiosrc;
+        this.setAudioAvailable(true);
+      } catch (error) {
+        this.Microphone.Errors.next(error);
+        this.Log.addLog(error);
+        this.setAudioAvailable(false);
       }
     } else {
-      let err = new Error(
-        'Cannot activate microphone.  Unsupported platform: ' +
-          this.deviceInfo.platform
-      );
-
-      this.Microphone.Errors.next(err);
-      this.Log.addLog(err);
-    }
-  }
-
-  async begin_iOSRecording() {
-    let perms = await this.checkPermissions();
-    if (perms && perms.microphone == 'granted') {
-      // capture native iOS audio
-      await this.startRecording();
-    } else {
-      let permsresult: any = await this.requestPermissions();
-      if (permsresult && permsresult.microphone == 'granted') {
-        // capture native iOS audio
-        await this.startRecording();
-      } else {
-        this.Microphone.Errors.next(new Error('Microphone permission denied'));
-      }
-    }
-  }
-
-  async end_iOSRecording() {
-    await this.stopRecording();
-  }
-
-  async getUserAudio() {
-    try {
-      let stream = await this.navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      });
-      this.cameraAccessObtained(stream);
-    } catch (err: any) {
+      let err = new Error('Unsupported platform: ' + this.deviceInfo.platform);
       this.Microphone.Errors.next(err);
       this.Log.addLog(err);
     }
@@ -150,10 +143,6 @@ export class AudioController {
     this.AudioPlayer.currentTime = 0;
   }
 
-  stopUserAudio() {
-    this.WebRecorder.stop();
-  }
-
   audioTrackEnded(event: any) {
     this.isAudioPlaying = false;
   }
@@ -164,79 +153,9 @@ export class AudioController {
     this.Speakerphone.Activity.next(isActive);
   }
 
-  cameraAccessObtained(stream: any) {
-    this.WebRecorder = new MediaRecorder(stream);
-    this.WebRecorder.ondataavailable = (event: any) => {
-      this.blobArray.push(event.data);
-    };
-
-    this.WebRecorder.onstop = (event: any) => {
-      this.audioRecordingBlob = new Blob(this.blobArray, {
-        type: 'audio/mpeg-3',
-      });
-      this.blobArray = [];
-      this.AudioPlayer.src = URL.createObjectURL(this.audioRecordingBlob);
-      this.setAudioAvailable();
-    };
-
-    this.WebRecorder.start();
-  }
-
-  setAudioAvailable() {
-    this.isAudioAvailable = true;
+  setAudioAvailable(status: boolean) {
+    this.isAudioAvailable = status;
     this.Microphone.AudioAvailable.next(this.isAudioAvailable);
-  }
-
-  async checkPermissions() {
-    try {
-      const perms = await Microphone.checkPermissions();
-      return perms;
-    } catch (error) {
-      this.Microphone.Errors.next(error);
-      this.Log.addLog(error);
-      return null;
-    }
-  }
-
-  async requestPermissions() {
-    try {
-      const requestPermissionsResult = await Microphone.requestPermissions();
-      console.log(
-        'requestPermissionsResult: ' + JSON.stringify(requestPermissionsResult)
-      );
-    } catch (error) {
-      console.error('requestPermissions Error: ' + JSON.stringify(error));
-    }
-  }
-
-  async startRecording() {
-    try {
-      const startRecordingResult = await Microphone.startRecording();
-      console.log(
-        'startRecordingResult: ' + JSON.stringify(startRecordingResult)
-      );
-    } catch (error) {
-      console.error('startRecordingResult Error: ' + JSON.stringify(error));
-      this.Microphone.Errors.next(error);
-      this.Log.addLog(error);
-    }
-  }
-
-  async stopRecording() {
-    try {
-      this.RecordingiOS = await Microphone.stopRecording();
-      // console.log(this.RecordingiOS);
-      // @ts-ignore
-      this.webPaths.push(this.RecordingiOS.webPath);
-      // @ts-ignore
-      this.dataUrls.push(this.RecordingiOS.dataUrl);
-      this.AudioPlayer.src = this.RecordingiOS.dataUrl;
-      this.setAudioAvailable();
-    } catch (error) {
-      console.error('recordingResult Error: ' + JSON.stringify(error));
-      this.Microphone.Errors.next(error);
-      this.Log.addLog(error);
-    }
   }
 
   async getDeviceInfo() {
