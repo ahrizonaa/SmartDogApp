@@ -3,7 +3,6 @@ export class WebAudio {
   WebRecorder!: MediaRecorder;
   blobArray: Blob[] = [];
   audioRecordingBlob!: Blob;
-  stopPromise!: Promise<string>;
 
   constructor() {}
 
@@ -17,7 +16,6 @@ export class WebAudio {
 
   cameraAccessObtained(stream: any) {
     this.WebRecorder = new MediaRecorder(stream);
-    this.stopPromise = new Promise<string>((resolve, reject) => {});
     this.WebRecorder.ondataavailable = (event: any) => {
       this.blobArray.push(event.data);
     };
@@ -28,7 +26,7 @@ export class WebAudio {
   }
 
   stopRecording() {
-    this.stopPromise = new Promise<string>((resolve, reject) => {
+    let stopPromise = new Promise<string>((resolve, reject) => {
       this.WebRecorder.onstop = (evt) => {
         this.audioRecordingBlob = new Blob(this.blobArray, {
           type: 'audio/mpeg-3',
@@ -39,13 +37,6 @@ export class WebAudio {
       };
     });
     this.WebRecorder.stop();
-    return this.stopPromise;
+    return stopPromise;
   }
 }
-
-// this.audioRecordingBlob = new Blob(this.blobArray, {
-//   type: 'audio/mpeg-3',
-// });
-// this.blobArray = [];
-// this.AudioPlayer.src = URL.createObjectURL(this.audioRecordingBlob);
-// this.setAudioAvailable(true);

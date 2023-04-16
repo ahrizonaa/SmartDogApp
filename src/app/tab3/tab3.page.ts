@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { LogService } from '../services/log.service';
@@ -8,8 +9,11 @@ import { LogService } from '../services/log.service';
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss'],
   standalone: true,
-  imports: [IonicModule, ExploreContainerComponent],
+  imports: [IonicModule, ExploreContainerComponent, CommonModule],
 })
 export class Tab3Page {
-  constructor(private LogService: LogService) {}
+  Log: LogService;
+  constructor() {
+    this.Log = inject(LogService);
+  }
 }

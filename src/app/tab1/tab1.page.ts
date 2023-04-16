@@ -74,7 +74,7 @@ export class Tab1Page implements OnInit, AfterViewInit {
 
     this.AudioController.Microphone.Errors.subscribe((error: Error) => {
       if (error) {
-        this.toastErrorMessage = error.toString();
+        this.toastErrorMessage = error.message;
         this.isToastOpen = true;
       }
     });

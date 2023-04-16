@@ -21,10 +21,6 @@ export class AudioController {
   AndroidAudio: AndroidAudio;
   WebAudio: WebAudio;
 
-  RecordingiOS!: any;
-  webPaths = [];
-  dataUrls = [];
-
   constructor() {
     this.Log = inject(LogService);
     this.isMicrophoneActive = false;
@@ -65,40 +61,31 @@ export class AudioController {
   }
 
   async microphoneToggle() {
-    this.Microphone.IsActive = !this.Microphone.IsActive;
-    this.Microphone.Activity.next(!this.Microphone.IsActive);
-
-    if (this.Microphone.IsActive) {
-      await this.beginRecording();
-    } else {
-      await this.endRecording();
+    try {
+      if (!this.Microphone.IsActive) {
+        await this.beginRecording();
+      } else {
+        await this.endRecording();
+      }
+      this.Microphone.IsActive = !this.Microphone.IsActive;
+      this.Microphone.Activity.next(!this.Microphone.IsActive);
+    } catch (error) {
+      this.Microphone.Errors.next(error);
+      this.Log.addLog(error);
+      this.Microphone.IsActive = false;
+      this.Microphone.Activity.next(this.Microphone.IsActive);
     }
   }
 
   async beginRecording() {
     if (this.deviceInfo.platform === 'ios') {
-      try {
-        await this.iOSAudio.beginRecording();
-      } catch (error) {
-        this.Microphone.Errors.next(error);
-        this.Log.addLog(error);
-      }
+      await this.iOSAudio.beginRecording();
     } else if (this.deviceInfo.platform == 'android') {
       // not implemented
     } else if (this.deviceInfo.platform == 'web') {
-      try {
-        await this.WebAudio.startRecording();
-      } catch (error) {
-        this.Microphone.Errors.next(error);
-        this.Log.addLog(error);
-      }
+      await this.WebAudio.startRecording();
     } else {
-      let err = new Error(
-        'Cannot activate microphone.  Unsupported platform: ' +
-          this.deviceInfo.platform
-      );
-      this.Microphone.Errors.next(err);
-      this.Log.addLog(err);
+      throw new Error('Unsupported platform: ' + this.deviceInfo.platform);
     }
   }
 
@@ -148,9 +135,8 @@ export class AudioController {
   }
 
   alarmSirenClicked() {
-    let isActive = this.Speakerphone.IsActive;
-    this.Speakerphone.IsActive = isActive;
-    this.Speakerphone.Activity.next(isActive);
+    this.Speakerphone.IsActive = !this.Speakerphone.IsActive;
+    this.Speakerphone.Activity.next(this.Speakerphone.IsActive);
   }
 
   setAudioAvailable(status: boolean) {
