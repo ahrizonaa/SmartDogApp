@@ -27,7 +27,7 @@ export class LogService {
 
   private postLog(log: any): void {
     this.http
-      .post(this.urlLocal, {
+      .post(this.urlProd, {
         log: log.toString(),
         clientDateTime: new Date().toISOString(),
         deviceInfo: this.deviceInfo,
